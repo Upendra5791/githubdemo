@@ -1,20 +1,20 @@
 //  OpenShift sample Node application
-const express = require('express'),
+var express = require('express'),
     app     = express()
 
 // app.set('view engine', 'ejs')
 app.engine('html', require('ejs').renderFile);    
 
-const port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8081,
+var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8081,
     ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
     mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
     mongoURLLabel = "";
 
 if (mongoURL == null) {
   var mongoHost, mongoPort, mongoDatabase, mongoPassword, mongoUser;
-  // If using plane old env consts via service discovery
+  // If using plane old env vars via service discovery
   if (process.env.DATABASE_SERVICE_NAME) {
-    const mongoServiceName = process.env.DATABASE_SERVICE_NAME.toUpperCase();
+    var mongoServiceName = process.env.DATABASE_SERVICE_NAME.toUpperCase();
     mongoHost = process.env[mongoServiceName + '_SERVICE_HOST'];
     mongoPort = process.env[mongoServiceName + '_SERVICE_PORT'];
     mongoDatabase = process.env[mongoServiceName + '_DATABASE'];
@@ -26,7 +26,7 @@ if (mongoURL == null) {
     mongoDatabase = process.env.database_name;
     mongoPassword = process.env.password;
     mongoUser = process.env.username;
-    const mongoUriParts = process.env.uri && process.env.uri.split("//");
+    var mongoUriParts = process.env.uri && process.env.uri.split("//");
     if (mongoUriParts.length == 2) {
       mongoUriParts = mongoUriParts[1].split(":");
       if (mongoUriParts && mongoUriParts.length == 2) {
@@ -46,13 +46,13 @@ if (mongoURL == null) {
     mongoURL += mongoHost + ':' +  mongoPort + '/' + mongoDatabase;
   }
 }
-const db = null,
+var db = null,
     dbDetails = new Object();
 
-const initDb = function(callback) {
+var initDb = function(callback) {
   if (mongoURL == null) return;
 
-  const mongodb = require('mongodb');
+  var mongodb = require('mongodb');
   if (mongodb == null) return;
 
   mongodb.connect(mongoURL, function(err, conn) {
@@ -77,7 +77,7 @@ app.get('/', function (req, res) {
     initDb(function(err){});
   }
   if (db) {
-    const col = db.collection('counts');
+    var col = db.collection('counts');
     // Create a document with request IP and current time of request
     col.insert({ip: req.ip, date: Date.now()});
     col.count(function(err, count){
