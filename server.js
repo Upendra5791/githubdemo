@@ -1,13 +1,42 @@
-//  OpenShift sample Node application
-var express = require('express'),
-    app     = express()
+const express = require('express'),
+app = express()
 
-// app.set('view engine', 'ejs')
-app.engine('html', require('ejs').renderFile);    
-
+app.use(express.json())
+app.use(express.urlencoded())
+app.use(express.static('static'))
+app.set('view engine', 'ejs')
+app.set('views','static/views')
+  
 var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
-    mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
+    ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0'
+
+/* Twitter Client Code STARTS */
+
+const Twitter = require('twitter-lite')
+const user = new Twitter({
+    consumer_key: "QOJAa3oEXmbx4xaPxtbegFRME",
+    consumer_secret: "g4cMg5JcU5bTh9WAzZCRlcVfHhZUc7BBqVGFvNmuph0J4ih62M",
+});
+
+let client;
+(async () => {
+    try {
+        const response = await user.getBearerToken()
+        console.log(`Got the following Bearer token from Twitter: ${response.access_token}`);
+        client = new Twitter({
+            bearer_token: response.access_token,
+        });
+    }catch(e) {
+        console.log('Error loading bearer token from Twitter')
+        console.log(e)
+    }
+})()
+
+/* Twitter Client Code END */
+
+
+/* Mongo DB Code STARTS */
+var mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
     mongoURLLabel = "";
 
 if (mongoURL == null) {
@@ -70,6 +99,8 @@ var initDb = function(callback) {
   });
 };
 
+/* Mongo DB Code END */
+
 app.get('/', function (req, res) {
   // try to initialize the db on every request if it's not already
   // initialized.
@@ -84,10 +115,10 @@ app.get('/', function (req, res) {
       if (err) {
         console.log('Error running count. Message:\n'+err);
       }
-      res.render('index.html', { pageCountMessage : count, dbInfo: dbDetails });
+      res.render('index', { pageCountMessage : count, dbInfo: dbDetails });
     });
   } else {
-    res.render('index.html', { pageCountMessage : null});
+    res.render('index', { pageCountMessage : null});
   }
 });
 
@@ -105,6 +136,75 @@ app.get('/pagecount', function (req, res) {
     res.send('{ pageCount: -1 }');
   }
 });
+
+
+app.get('/tweet-list', (req, res, next) => {
+  console.log(req.query)
+  if (req.query.term === '') {
+      res.status(500).render('tweet-list', {
+          error: true,
+          msg: 'Enter a valid search term'
+      })
+  } else {
+      try {
+          client.get(`/search/tweets`, {
+              q: req.query.term, 
+              lang: "en",
+              count: 20,
+          })
+          .then(resp => {
+              res.render('tweet-list', {
+                  error: false,
+                  tweets: resp.statuses
+              })
+          })
+          .catch(e => {
+              res.status(500).render('tweet-list', {
+                  'msg': 'Oops! Something went wrong. Try after sometime ;) ',
+                  'error': true,
+                  'tweets': null
+              })
+          })
+      } catch(e) {
+          res.status(500).render('tweet-list', {
+              'msg': 'Oops! Something went wrong. Try after sometime ;)',
+              'error': true,
+              'tweets': null
+          })
+      }
+
+  }
+})
+
+/* API section STARTS */
+app.get('/api/getTweets', (req, res, next) => {
+  if (!req.query.term) {
+      res.status(404).json({
+          msg: `'term' parameter missing! Provide a valid search term.`
+      })
+  } else {
+      client.get(`/search/tweets`, {
+          q: req.query.term,
+          lang: "en",
+          count: 10,
+      })
+      .then(resp => {
+          res.json({
+              'message': 'Tweets fetched successfully',
+              'tweets': resp,
+          })
+      })
+      .catch(e => {
+          res.status(500).json({
+              'message': 'Failed fetching tweets',
+              'error': e
+          })
+      })
+  }
+})
+
+/* API section END */
+
 
 // error handling
 app.use(function(err, req, res, next){

@@ -1,0 +1,33 @@
+<%- include('page-start') %>
+
+<div class="container">
+
+    <%if (error) { %>
+        <div class="alert alert-warning" role="alert">
+            <h3> <%= msg %> </h3>
+        </div>
+    <% } %>
+
+    <% if (tweets) { %>
+        <div class="tweets-container my-4">
+            <% for(var i=0; i<tweets.length; i++) {%>
+                <div class="tweet-container">
+                    <div class="user">
+                        <a href="">
+                            <img src="<%= tweets[i].user.profile_image_url %>"/>
+                        </a>
+                        <a href="">
+                            <span><%= tweets[i].user.name %></span>
+                        </a>
+                    </div>
+                    <span> <%= tweets[i].text %></span>
+                    <br/>
+                    <%- tweets[i].source %>
+                </div>
+            <% } %> 
+        </div>
+    <% } %>
+
+</div>
+
+<%- include('page-end') %>

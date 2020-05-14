@@ -1,0 +1,51 @@
+{
+    "name": "Tweet PWA",
+    "short_name": "TweetApp",
+    "description": "Progressive Web App that allows user to type in a search term and fetch realtime relevant results from Twitter",
+    "icons": [
+        {
+            "src": "images/twit.jpg",
+            "sizes": "32x32",
+            "type": "image/jpg"
+        },
+        {
+            "src": "images/twit.jpg",
+            "sizes": "64x64",
+            "type": "image/png"
+        },
+        {
+            "src": "images/twit.jpg",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "images/twit.jpg",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "images/twit.jpg",
+            "sizes": "168x168",
+            "type": "image/png"
+        },
+        {
+            "src": "images/twit.jpg",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "images/twit.jpg",
+            "sizes": "256x256",
+            "type": "image/png"
+        },
+        {
+            "src": "images/twit.jpg",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "pwa_index.html",
+    "display": "fullscreen",
+    "theme_color": "#0398fc",
+    "background_color": "#0398fc"
+}
